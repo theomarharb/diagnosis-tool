@@ -65,6 +65,73 @@ const factors = [
   },
 ];
 
+const pricingMatrix = {
+  STRAIGHTFORWARD: {
+    fullPay: 3500,
+    nonUS: { total: 4000, two: 2000, three: 1333 },
+    usFinancing: { total: 4700, payva: 392, clarity: 131 },
+  },
+  MODERATE: {
+    fullPay: 4500,
+    nonUS: { total: 5200, two: 2600, three: 1733 },
+    usFinancing: { total: 6000, payva: 500, clarity: 167 },
+  },
+  COMPLEX: {
+    fullPay: 6000,
+    nonUS: { total: 6900, two: 3450, three: 2300 },
+    usFinancing: { total: 8000, payva: 667, clarity: 222 },
+  },
+};
+
+function buildDescription(answers) {
+  const parts = [];
+
+  // Duration
+  const dur = answers.duration;
+  if (dur >= 3) parts.push(`You were together for ${dur >= 4 ? "over five years" : "three to five years"} — that kind of history doesn't just disappear.`);
+  else if (dur === 2) parts.push("You had a meaningful relationship of a few years together — there's real history to work with.");
+  else parts.push("Your relationship is relatively fresh, which means emotions are still close to the surface.");
+
+  // Contact
+  const ct = answers.contact;
+  if (ct >= 3) parts.push(`You're currently ${ct === 4 ? "blocked" : "in no contact"}, which means the reconnection path requires careful strategic timing.`);
+  else if (ct === 2) parts.push("You have limited contact — mostly logistical — which gives us a narrow but usable channel.");
+  else parts.push("You're still in regular contact, which is a strong advantage for reconnection.");
+
+  // Timeframe
+  const tf = answers.timeframe;
+  if (tf >= 3) parts.push(`It's been ${tf === 4 ? "over six months" : "a few months"} since the breakup, so we need to account for emotional distance that's built up.`);
+  else if (tf === 2) parts.push("The breakup is still fairly recent — emotions haven't fully settled, which we can work with.");
+  else parts.push("This just happened — timing is on your side if we move with precision right now.");
+
+  // Complications
+  const cp = answers.complications;
+  if (cp >= 3) parts.push(`There are significant complications — ${cp === 4 ? "divorce or legal proceedings" : "kids together"} — that add layers we need to navigate carefully.`);
+  else if (cp === 2) parts.push("Shared home or finances add some logistical complexity, but also keep you connected.");
+  else parts.push("There are no major external complications, so we can focus purely on the relationship itself.");
+
+  // Rebound
+  const rb = answers.rebound;
+  if (rb >= 3) parts.push(`Your ex ${rb === 4 ? "is in an established relationship" : "has started seeing someone new"}, which changes the strategy but doesn't close the door.`);
+  else if (rb === 2) parts.push("There may be someone else in the picture, so we'll factor that into the approach.");
+  // No rebound = don't mention it
+
+  // Readiness
+  const rd = answers.readiness;
+  if (rd >= 3) parts.push(`Emotionally, you're ${rd === 4 ? "in a tough place right now" : "struggling"} — and part of this process is getting you to a position of strength before we make any moves.`);
+  else if (rd === 2) parts.push("You're in a stable headspace and ready for a plan — that's exactly where we need you.");
+  else parts.push("You're ready to take action — that energy is an asset we can channel immediately.");
+
+  return parts.join(" ");
+}
+
+function buildApproach(answers) {
+  const total = Object.values(answers).reduce((a, b) => a + b, 0);
+  if (total <= 10) return "Active reconnection coaching from day one. Benny builds your game plan immediately and guides every interaction in real time.";
+  if (total <= 16) return "Strategic positioning first, then precision reconnection when the window opens. Benny monitors your situation and tells you exactly when and how to make each move.";
+  return "Foundation work, strategic no-contact management with emergency support for critical moments, then precision reconnection when conditions are right.";
+}
+
 function getResult(total) {
   if (total <= 10) return {
     level: "STRAIGHTFORWARD",
@@ -72,10 +139,7 @@ function getResult(total) {
     bg: "rgba(52,211,153,0.08)",
     border: "rgba(52,211,153,0.25)",
     glow: "rgba(52,211,153,0.15)",
-    price: "$3,500 – $4,000",
     timeline: "1 – 3 months",
-    description: "Strong fundamentals. You're in contact or close to it, the breakup is recent, and there aren't major complications blocking the path. This is about precision and timing — doing the right things at the right moments.",
-    approach: "Active reconnection coaching from day one. Benny builds your game plan immediately and guides every interaction in real time.",
   };
   if (total <= 16) return {
     level: "MODERATE",
@@ -83,10 +147,7 @@ function getResult(total) {
     bg: "rgba(251,191,36,0.08)",
     border: "rgba(251,191,36,0.25)",
     glow: "rgba(251,191,36,0.15)",
-    price: "$4,000 – $5,000",
     timeline: "3 – 5 months",
-    description: "Your situation has layers — a period of no contact, a rebound relationship, or emotional work that needs to happen before reconnection. There's a clear path, but it requires strategic patience and expert timing.",
-    approach: "Strategic positioning first, then precision reconnection when the window opens. Benny monitors your situation and tells you exactly when and how to make each move.",
   };
   return {
     level: "COMPLEX",
@@ -94,32 +155,32 @@ function getResult(total) {
     bg: "rgba(248,113,113,0.08)",
     border: "rgba(248,113,113,0.25)",
     glow: "rgba(248,113,113,0.15)",
-    price: "$5,000 – $6,500",
     timeline: "4 – 6+ months",
-    description: "Multiple layers — long history, deep no contact, children or divorce proceedings, an established rebound, or significant emotional recovery needed. This requires Benny's full strategic involvement across a longer timeline.",
-    approach: "Foundation work, strategic no-contact management with emergency support for critical moments, then precision reconnection when conditions are right.",
   };
 }
 
 const deliverables = [
-  { icon: "🎯", title: "1-on-1 Onboarding", desc: "Deep-dive with Benny into your specific situation" },
-  { icon: "📞", title: "Weekly Group Coaching", desc: "Live calls with Benny + Kobi (behavioral analysis)" },
-  { icon: "💬", title: "Direct Access to Benny", desc: "WhatsApp for real-time guidance when moments happen" },
-  { icon: "📝", title: "Message Review", desc: "Benny reviews every text before you send it to your ex" },
-  { icon: "🤖", title: "Benny AI — 24/7", desc: "Instant support between sessions, any time of day" },
-  { icon: "👥", title: "Private Community", desc: "Support from others going through the same process" },
-  { icon: "📚", title: "Full Resource Library", desc: "Attachment styles, NC strategy, reconnection playbooks" },
-  { icon: "⚡", title: "Scales When It Matters", desc: "Weekly 1:1 calls activate when reconnection goes live" },
+  { icon: "🎯", title: "Onboarding Call", desc: "45-minute onboarding call with Benny" },
+  { icon: "📞", title: "Weekly Group Coaching", desc: "Weekly group coaching calls with Benny" },
+  { icon: "🔒", title: "Phase 1 — NC Quiet", desc: "Weekly 1:1 check-in with Benny + emergency WhatsApp access" },
+  { icon: "⚡", title: "Phase 2 — Reconnection", desc: "Weekly 1:1 calls with Benny + full WhatsApp access + message review before every send" },
+  { icon: "🤖", title: "Benny AI — 24/7", desc: "Real-time support between sessions" },
+  { icon: "👥", title: "Community Access", desc: "Skool community with all call replays, lessons, and frameworks" },
+  { icon: "📚", title: "Resource Library", desc: "Magnet Mode resource library" },
+  { icon: "🏆", title: "Until the Outcome", desc: "Benny stays until the outcome — no monthly expiration" },
 ];
 
 export default function DiagnosisPitch() {
   const [answers, setAnswers] = useState({});
+  const [paymentPath, setPaymentPath] = useState("");
+  const [splitView, setSplitView] = useState(null); // null | "2pay" | "3pay"
   const [mode, setMode] = useState("setup"); // setup | present
   const [revealStep, setRevealStep] = useState(0); // 0=factors, 1=result, 2=approach, 3=deliverables, 4=investment
 
   const totalScore = Object.values(answers).reduce((a, b) => a + b, 0);
-  const allAnswered = Object.keys(answers).length === factors.length;
+  const allAnswered = Object.keys(answers).length === factors.length && paymentPath !== "";
   const result = allAnswered ? getResult(totalScore) : null;
+  const pricing = result ? pricingMatrix[result.level] : null;
 
   const handleSelect = (factorId, points) => {
     setAnswers({ ...answers, [factorId]: points });
@@ -140,6 +201,8 @@ export default function DiagnosisPitch() {
 
   const reset = () => {
     setAnswers({});
+    setPaymentPath("");
+    setSplitView(null);
     setMode("setup");
     setRevealStep(0);
   };
@@ -175,6 +238,43 @@ export default function DiagnosisPitch() {
         </div>
 
         <div style={{ maxWidth: 700, width: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Payment Path */}
+          <div style={{
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid #1E2740",
+            borderRadius: 12,
+            padding: "16px 20px",
+          }}>
+            <div style={{ fontSize: 13, color: "#6C7A9B", marginBottom: 10, fontWeight: 500, letterSpacing: 0.5 }}>
+              Payment Path
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {["Full Pay", "US Financing", "Non-US Split Pay"].map((opt) => {
+                const selected = paymentPath === opt;
+                return (
+                  <button
+                    key={opt}
+                    onClick={() => setPaymentPath(opt)}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 8,
+                      border: selected ? "1px solid #4A6CF7" : "1px solid #252D44",
+                      background: selected ? "rgba(74,108,247,0.15)" : "transparent",
+                      color: selected ? "#8BA3FF" : "#7A8AAD",
+                      fontSize: 13,
+                      fontFamily: "'DM Sans', sans-serif",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      fontWeight: selected ? 600 : 400,
+                    }}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {factors.map((factor) => (
             <div key={factor.id} style={{
               background: "rgba(255,255,255,0.03)",
@@ -221,7 +321,7 @@ export default function DiagnosisPitch() {
               color: "#6C7A9B",
               marginBottom: 12,
             }}>
-              Score: {totalScore}/24 → <span style={{ color: result.color, fontWeight: 600 }}>{result.level}</span> → <span style={{ color: "#FFF", fontWeight: 600 }}>{result.price}</span>
+              Score: {totalScore}/24 → <span style={{ color: result.color, fontWeight: 600 }}>{result.level}</span> → <span style={{ color: "#FFF", fontWeight: 600 }}>{paymentPath}</span>
             </div>
             <button
               onClick={startPresentation}
@@ -385,7 +485,7 @@ export default function DiagnosisPitch() {
               color: "#A0AEC0",
               margin: 0,
             }}>
-              {result.description}
+              {buildDescription(answers)}
             </p>
           </div>
         )}
@@ -411,7 +511,7 @@ export default function DiagnosisPitch() {
               Your Path Forward
             </div>
             <p style={{ fontSize: 15, color: "#C0CCE0", lineHeight: 1.7, margin: "0 0 16px 0" }}>
-              {result.approach}
+              {buildApproach(answers)}
             </p>
             <div style={{
               display: "flex",
@@ -445,7 +545,7 @@ export default function DiagnosisPitch() {
               marginBottom: 20,
               fontWeight: 600,
             }}>
-              What You Get
+              What You Need
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {deliverables.map((d, i) => (
@@ -470,7 +570,7 @@ export default function DiagnosisPitch() {
         )}
 
         {/* STEP 4: Investment */}
-        {revealStep >= 4 && (
+        {revealStep >= 4 && pricing && (
           <div style={{
             background: "linear-gradient(135deg, #111833 0%, #151D38 100%)",
             border: `1px solid ${result.border}`,
@@ -491,6 +591,8 @@ export default function DiagnosisPitch() {
             }}>
               Your Investment
             </div>
+
+            {/* Main price display */}
             <div style={{
               fontFamily: "'Fraunces', serif",
               fontSize: 44,
@@ -499,13 +601,70 @@ export default function DiagnosisPitch() {
               marginBottom: 8,
               letterSpacing: -0.5,
             }}>
-              {result.price}
+              ${(paymentPath === "Full Pay" ? pricing.fullPay : paymentPath === "US Financing" ? pricing.usFinancing.total : pricing.nonUS.total).toLocaleString()}
             </div>
+
+            {paymentPath === "Full Pay" && (
+              <div style={{ fontSize: 14, color: "#5A6A8A" }}>Paid in full</div>
+            )}
+
+            {paymentPath === "US Financing" && (
+              <div style={{ fontSize: 14, color: "#5A6A8A" }}>Financed</div>
+            )}
+
+            {paymentPath === "Non-US Split Pay" && (
+              <>
+                <div style={{ fontSize: 14, color: "#5A6A8A", marginBottom: 16 }}>Payment plan</div>
+
+                {/* Split toggle buttons — closer clicks to show breakdown */}
+                <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 8 }}>
+                  {["2pay", "3pay"].map((opt) => {
+                    const active = splitView === opt;
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => setSplitView(active ? null : opt)}
+                        style={{
+                          padding: "8px 20px",
+                          borderRadius: 8,
+                          border: active ? `1px solid ${result.color}` : "1px solid #1E2740",
+                          background: active ? `${result.color}15` : "transparent",
+                          color: active ? result.color : "#5A6A8A",
+                          fontSize: 13,
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontWeight: active ? 600 : 400,
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        {opt === "2pay" ? "2 Payments" : "3 Payments"}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {splitView && (
+                  <div style={{
+                    marginTop: 16,
+                    padding: "16px 24px",
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid #1A2240",
+                    borderRadius: 10,
+                    animation: "fadeIn 0.3s ease",
+                  }}>
+                    <div style={{ fontSize: 14, color: "#C0CCE0", fontWeight: 500 }}>
+                      ${(splitView === "2pay" ? pricing.nonUS.two : pricing.nonUS.three).toLocaleString()} × {splitView === "2pay" ? "2" : "3"}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             <div style={{
               width: 60,
               height: 2,
               background: `linear-gradient(90deg, transparent, ${result.color}, transparent)`,
-              margin: "16px auto",
+              margin: "20px auto",
             }} />
             <p style={{
               fontSize: 16,
@@ -525,7 +684,6 @@ export default function DiagnosisPitch() {
               lineHeight: 1.6,
             }}>
               No monthly fees. No renewals. No surprise charges.
-              Payment plans available.
             </p>
           </div>
         )}
